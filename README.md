@@ -42,3 +42,14 @@ Requirements: Go 1.26+, Python 3. (`tools/yamlcheck` and `tools/to_study` are bu
 | `docs/` | `Makefile`
 
 go.mod: the source has one `src/_root/go.mod`; the build generates a `go.mod`/`go.sum` per task.
+
+## License
+
+The tooling and documentation in this repository (`tools/`, `Makefile`, `structure.py`, `AGENTS.md`, `docs/`, and the
+sample lesson) are licensed under the [MIT License](LICENSE).
+
+**Courses built from this template are separate works.** A repository you create from this template may use any
+license of its own; it does not have to be MIT and does not inherit this one. Remove or replace the `LICENSE` file in
+your repository and state the license of your course there. Check the licenses of the subject library and of any
+material you reuse (for example, a course adapted from another course may carry its own license notice).
+

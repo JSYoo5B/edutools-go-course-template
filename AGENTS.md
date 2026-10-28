@@ -11,6 +11,12 @@ Anything that depends on the subject library lives only in the clone's `src/` an
   language and set `COURSE["language"]` (and `COURSE["ui"]`, the build's default texts) in `structure.py`.
 - The English docs describe *how to build* courses; the course language only affects *what the learner reads*.
 
+## Licensing
+
+The `LICENSE` file (MIT) covers this template's tooling and docs only. **A repository created from this template is
+a separate work and may have its own license.** When you start a course, replace or remove `LICENSE`, state the course's
+license in its README, and check the licenses of the subject library and of any reused material.
+
 ## 0. How to read this file
 
 - New here: sections 1-3. While working: section 4 (procedures) and section 6 (definition of done).
