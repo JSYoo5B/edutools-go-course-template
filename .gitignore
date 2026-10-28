@@ -1,0 +1,8 @@
+.DS_Store
+/build/
+/.work/
+tools/yamlcheck/yamlcheck
+*.zip
+tools/to_study/to_study
+/course/
+/.idea/
