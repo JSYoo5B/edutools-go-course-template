@@ -9,7 +9,8 @@
   condition, compare with a baseline, check against what the subject itself reports.
 - **Exercises use the subject the way its users do.** For a library, the learner writes code that calls its API; for a
   testing tool, the learner writes a Go test (`TestXxx(t *testing.T)`) that uses it. Supply the boilerplate (setup,
-  cleanup, routine error handling) and leave the meaningful calls to the learner.
+  cleanup, routine error handling) and leave the meaningful calls to the learner. Styles and grading techniques:
+  `docs/exercise-styles.md`.
 - **Do not force one shape on every lesson.** Pick the number and kind of tasks from the topic, not from a template.
 - **Respect the audience.** Assume what the brief says they know; explain the concepts, not the obvious.
 

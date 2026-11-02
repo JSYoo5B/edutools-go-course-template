@@ -178,22 +178,26 @@ func main() {
 					if len(ti.Options) < 3 || ok == 0 || (!ti.Multiple && ok != 1) {
 						fail("%s: bad choice options (n=%d correct=%d multiple=%v)", tdir, len(ti.Options), ok, ti.Multiple)
 					}
-				case "edu":
+				case "edu", "output":
 					if len(ti.Files) < 2 {
-						fail("%s: edu needs >=2 files", tdir)
+						fail("%s: %s needs >=2 files", tdir, ti.Type)
 					}
-					hasPH, hasHiddenTest := false, false
+					hasPH, hasHiddenTest, hasOutput := false, false, false
 					for _, f := range ti.Files {
 						b, err := os.ReadFile(filepath.Join(tdir, f.Name))
 						if err != nil {
 							fail("%s: file %s: %v", tdir, f.Name, err)
 							continue
 						}
-						if strings.HasSuffix(f.Name, "_test.go") {
-							if f.Visible {
-								fail("%s: test file %s must be hidden", tdir, f.Name)
-							}
+						// visible tests are allowed (starter tests, tests the learner writes); grading needs a hidden one
+						if strings.HasSuffix(f.Name, "_test.go") && !f.Visible {
 							hasHiddenTest = true
+						}
+						if f.Name == "test/output.txt" {
+							if f.Visible {
+								fail("%s: test/output.txt must be hidden", tdir)
+							}
+							hasOutput = true
 						}
 						if strings.Contains(string(b), "//@@") {
 							fail("%s: %s still has //@@ markers", tdir, f.Name)
@@ -201,7 +205,7 @@ func main() {
 						if strings.HasSuffix(f.Name, "_test.go") && !strings.HasPrefix(f.Name, "test/") {
 							fail("%s: test file %s must live in test/", tdir, f.Name)
 						}
-						if m := pkgRe.FindStringSubmatch(string(b)); m != nil && !strings.HasPrefix(f.Name, "test/") {
+						if m := pkgRe.FindStringSubmatch(string(b)); m != nil && m[1] != "main" && !strings.HasPrefix(f.Name, "test/") {
 							if prev, dup := pkgs[m[1]]; dup && prev != tdir {
 								fail("%s: package %q also used in %s", tdir, m[1], prev)
 							}
@@ -229,7 +233,13 @@ func main() {
 					}
 					gm, err := os.ReadFile(filepath.Join(tdir, "go.mod"))
 					if err != nil || !strings.HasPrefix(string(gm), "module ") {
-						fail("%s: edu task needs its own go.mod", tdir)
+						fail("%s: %s task needs its own go.mod", tdir, ti.Type)
+					}
+					if ti.Type == "output" {
+						if !hasOutput {
+							fail("%s: output task without hidden test/output.txt", tdir)
+						}
+						break
 					}
 					if !hasPH {
 						fail("%s: edu task without placeholders", tdir)

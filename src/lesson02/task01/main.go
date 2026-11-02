@@ -1,0 +1,23 @@
+// Command fizzbuzz prints 1..15, replacing multiples of 3 with Fizz, of 5 with Buzz and of both with FizzBuzz.
+package main
+
+import "fmt"
+
+func main() {
+	for i := 1; i <= 15; i++ {
+		//@@begin
+		//@@ph // TODO: print Fizz, Buzz, FizzBuzz or the number
+		//@@ph fmt.Println(i)
+		switch {
+		case i%15 == 0:
+			fmt.Println("FizzBuzz")
+		case i%3 == 0:
+			fmt.Println("Fizz")
+		case i%5 == 0:
+			fmt.Println("Buzz")
+		default:
+			fmt.Println(i)
+		}
+		//@@end
+	}
+}

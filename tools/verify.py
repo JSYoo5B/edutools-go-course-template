@@ -3,7 +3,7 @@
 
 Usage: verify.py <lesson_dir> <task_dir> [--student | --run] [-run REGEX] [-v]
 --run: theory/choice example: 'go run .' (solution state) under the global lock
-Default: solution state, runs `go test ./test/` under a global lock (serializes heavy tests, e.g. ones that start containers).
+Default: solution state, runs `go test ./test/` (output tasks: go run . vs test/output.txt) under a global lock (serializes heavy tests, e.g. ones that start containers).
 --student: learner state, only `go vet ./...` (compile check).
 """
 import fcntl
@@ -59,6 +59,8 @@ def main():
             print("lock acquired, go run .", flush=True)
             r = subprocess.run(["go", "run", "."], cwd=target, text=True, timeout=600)
             sys.exit(r.returncode)
+    if tdef["type"] == "output":  # run main, compare stdout with test/output.txt (stdin: test/input.txt)
+        sys.exit(check_output(target))
     with open(LOCK, "w") as lf:
         print("waiting for test lock...", flush=True)
         fcntl.flock(lf, fcntl.LOCK_EX)
@@ -70,6 +72,28 @@ def main():
             cmd += ["-run", run]
         r = subprocess.run(cmd, cwd=target, text=True)
         sys.exit(r.returncode)
+
+
+def check_output(target):
+    """Mimic the plugin's output check: trailing white space is ignored."""
+    stdin = None
+    inp = os.path.join(target, "test", "input.txt")
+    if os.path.exists(inp):
+        with open(inp, encoding="utf-8") as f:
+            stdin = f.read()
+    with open(os.path.join(target, "test", "output.txt"), encoding="utf-8") as f:
+        want = f.read()
+    with open(LOCK, "w") as lf:
+        fcntl.flock(lf, fcntl.LOCK_EX)
+        r = subprocess.run(["go", "run", "."], cwd=target, input=stdin, capture_output=True, text=True, timeout=600)
+    if r.returncode != 0:
+        print(r.stderr, file=sys.stderr)
+        return r.returncode
+    if r.stdout.rstrip() != want.rstrip():
+        print(f"output differs\n--- want\n{want}--- got\n{r.stdout}", file=sys.stderr)
+        return 1
+    print("output OK")
+    return 0
 
 
 if __name__ == "__main__":

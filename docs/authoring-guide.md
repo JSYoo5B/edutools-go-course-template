@@ -36,7 +36,10 @@ LESSON = dict(
 - If `files` is omitted for theory/choice the build inserts an empty scratch `main.go`. **Do not rely on it** (write a
   real example).
 
-## edu task files
+## edu / output task files
+
+Pick the style first: `docs/exercise-styles.md` (samples in `src/lesson02`). The rest of this section describes the
+function-fragment style; the others reuse its rules.
 
 ### Visible source (solution + markers)
 

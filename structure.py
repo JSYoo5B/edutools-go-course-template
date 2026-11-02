@@ -41,6 +41,7 @@ A short description of the course: what it teaches, who it is for, what to prepa
 # Sections -> lesson directory names. Lessons that do not exist yet (no lesson.py) are skipped.
 SECTIONS = [
     dict(dir="section01", title="Part 1. Getting started", lessons=["lesson01"]),
+    dict(dir="section02", title="Part 2. Exercise styles (samples)", lessons=["lesson02"]),
 ]
 
 _resolved = []

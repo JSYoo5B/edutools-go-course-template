@@ -37,13 +37,14 @@ README.md               quick start for humans
 Makefile                build / check / verify / run-demo / run-all / study / zip
 structure.py            course metadata (title, summary, language, ui texts) and the section -> lesson map; edit first
 src/_root/              go.mod (+go.sum), README.md (copied to the course root), idea/ (IDE module definition)
-src/lessonNN/           lessons: lesson.py + taskMM/ (sample lesson01: one theory, one quiz, one exercise; stdlib only)
+src/lessonNN/           lessons: lesson.py + taskMM/ (samples, stdlib only: lesson01 = theory, quiz, exercise;
+                        lesson02 = one task per exercise style)
 tools/build.py          src/ -> author course tree (+ learner-state tree); markers, per-task go.mod generation
 tools/verify.py         verify one task in isolation (global lock): solution go test / --student go vet / --run
 tools/yamlcheck/        structure validator (Go): author tree, or `-study` for the learner tree
 tools/to_study/         author tree -> learner (Study-mode) tree converter (Go)
 tools/runall.sh         run every edu task serially
-docs/                   authoring-guide, gotchas, course-design
+docs/                   authoring-guide, exercise-styles, gotchas, course-design
 build/  .work/          generated output (never committed)
 ```
 
@@ -55,7 +56,8 @@ source directories.
 
 1. **The Go checker runs only the tests in the task's `test/` directory.** One task = one Go module: `go.mod` and the
    source `*.go` in the task root, `test/task_test.go` (`package test`, importing the source as `task "<module>"`).
-   Module name = `lessonNN_taskMM`. (Violation: Check says "No tests have run".)
+   Module name = `lessonNN_taskMM`. (Violation: Check says "No tests have run".) Visible tests in `test/` are allowed
+   and run too; grading needs at least one hidden one. `output` tasks use a hidden `test/output.txt` instead.
 2. **Never write `editable: false`** on hidden files (`test/task_test.go`, `go.sum`). The plugin writes the hidden test
    file at Check time. (Violation: "Failed to launch checking".)
 3. **Every task, theory and choice included, needs a visible file**; otherwise the Task Description panel does not show.
@@ -93,7 +95,8 @@ taskMM/<name>.go         edu: visible source = solution + markers
 taskMM/test/task_test.go edu: hidden grading test (package test)
 ```
 
-- Types: `theory`, `choice` (options live in lesson.py), `edu`.
+- Types: `theory`, `choice` (options live in lesson.py), `edu`, `output`. Choose the exercise style with
+  `docs/exercise-styles.md` (fragment, program output/behaviour, starter test, code inside a test, write the test).
 - List `go.mod`/`go.sum` in `files`; the **build generates them** (never create them in the source). Copy the sample
   `src/lesson01/lesson.py`.
 - Marker example:

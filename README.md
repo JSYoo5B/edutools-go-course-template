@@ -27,7 +27,8 @@ Requirements: Go 1.26+, Python 3. (`tools/yamlcheck` and `tools/to_study` are bu
 2. Fill `structure.py` (title, summary, **course language**, default UI texts, sections) and `src/_root/README.md`.
 3. Add your subject library to `src/_root/go.mod` (`go get`, `go mod tidy`, keep go.sum).
 4. Write a pilot of 2-3 lessons under `src/` using the sample `src/lesson01` as the model, review it in the IDE, then
-   write the rest. Rules in [docs/authoring-guide.md](docs/authoring-guide.md).
+   write the rest. Rules in [docs/authoring-guide.md](docs/authoring-guide.md); exercise styles and grading in
+   [docs/exercise-styles.md](docs/exercise-styles.md) (samples in `src/lesson02`).
 5. Pitfalls: [docs/gotchas.md](docs/gotchas.md). Design: [docs/course-design.md](docs/course-design.md).
 
 ## Two trees
