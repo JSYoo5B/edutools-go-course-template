@@ -17,7 +17,7 @@ Each item: symptom -> cause -> fix / how to check.
 
 ## 3. The description of a theory/quiz task does not show
 - Cause: with no visible file (`files: []`) nothing opens in the editor, so the Task Description panel does not appear.
-  The official *Tour of Go* gives every task, theory included, a visible `main.go` and a hidden `go.mod`.
+  The [*Tour of Go* course](https://github.com/jetbrains-academy/tour-of-go) gives every task, theory included, a visible `main.go` and a hidden `go.mod`.
 - Fix: every task gets a visible file. We use an example `main.go` that shows the concept.
 
 ## 4. The top directory shows as excluded / the project has no module
@@ -63,8 +63,9 @@ Each item: symptom -> cause -> fix / how to check.
 - Fix: `tools/to_study` (`make study`) replaces the solution regions with the placeholder text, recomputes
   offset/length/`initial_state`, adds `status`/`record` (and `selected_options` for quizzes) and `mode: Study`. It reads and
   writes YAML with `yaml.v3`, because the IDE rewrites an author tree's YAML in its own style, so line-based parsing fails.
-  Validate with `yamlcheck -study`. Known limit: no encrypted solution, so "peek solution" is unavailable.
-- Reference: the official *Tour of Go* is a learner tree (`mode: Study`, `status`, `record`).
+  Validate with `yamlcheck -study`.
+- Reference: the [*Tour of Go* course](https://github.com/jetbrains-academy/tour-of-go) is a learner tree
+  (`mode: Study`, `status`, `record`).
 
 ## 11. The learner tree opens but does not jump to the first task
 - Cause: `EduProjectActivity` jumps to the first task **only when no file is open**
@@ -75,3 +76,16 @@ Each item: symptom -> cause -> fix / how to check.
   before `Course opened: <name>` in `idea.log`.
 - Note: when the IDE opens a tree it may add `additional_files: README.md` back into `course-info.yaml` (the file stays
   absent; harmless). Run the validators on freshly generated output, not on a tree the IDE has touched.
+
+## 12. Peek Solution shows nothing or throws
+- Cause: the learner tree had no answer data, then no file text. `TaskFileExt.getSolution` rebuilds the solution from the
+  file's model `text` plus each placeholder's `possible_answer`; without `text` it fails with
+  `Range [n, 0) out of bounds for length 0`. A local learner tree does not decrypt `encrypted_possible_answer`.
+- Fix: `tools/to_study` writes `possible_answer` and the full learner `text` of every file (hidden ones too, which Check
+  restores from the model). Covered by `tools/to_study/main_test.go`.
+
+## 13. Descriptions vanish after restructuring lessons
+- Cause: a learner tree generated over a directory the IDE had opened before kept old lesson metadata;
+  `EduProjectActivity.migrateYaml` logs `Config dir for <task> not found`.
+- Fix: after renaming or restructuring tasks, generate into a fresh directory (or delete the old one with the IDE
+  closed), then open that.

@@ -141,6 +141,7 @@ func convertTask(srcDir, dstDir string) []string {
 						problems = append(problems, fmt.Sprintf("%s/%s: bad placeholder %d+%d", srcDir, name, p.offset, p.length))
 						continue
 					}
+					answer := fromU16(u[p.offset : p.offset+p.length])
 					out = append(out, u[pos:p.offset]...)
 					pu := u16(p.text)
 					newOff := p.offset + delta
@@ -151,6 +152,7 @@ func convertTask(srcDir, dstDir string) []string {
 						scalar("offset"), intNode(newOff),
 						scalar("length"), intNode(len(pu)),
 						scalar("placeholder_text"), quoted(p.text),
+						scalar("possible_answer"), quoted(answer), // Peek Solution
 						scalar("initial_state"), mapping(scalar("length"), intNode(len(pu)), scalar("offset"), intNode(newOff)),
 						scalar("initialized_from_dependency"), boolNode(false),
 						scalar("selected"), boolNode(false),
@@ -176,6 +178,18 @@ func convertTask(srcDir, dstDir string) []string {
 			}
 			if !has(f, "learner_created") {
 				add(f, "learner_created", boolNode(false))
+			}
+			// Peek Solution rebuilds a file from its model text plus the answers, and Check restores
+			// hidden files from the model, so every file needs its learner-state text in the YAML.
+			contents, err := os.ReadFile(filepath.Join(dstDir, name))
+			if err != nil {
+				problems = append(problems, fmt.Sprintf("%s/%s: %v", dstDir, name, err))
+				continue
+			}
+			if v := get(f, "text"); v != nil {
+				*v = *quoted(string(contents))
+			} else {
+				add(f, "text", quoted(string(contents)))
 			}
 		}
 	}

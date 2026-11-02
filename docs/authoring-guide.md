@@ -56,9 +56,11 @@ func WordCount(text string) map[string]int {
   `//@@end` is the solution. The markers are removed from the output.
 - The learner state must compile -> silence unused imports/variables with `_ = x`. Check with `make verify L=.. T=..`
   (= `--student` vet + the solution test).
-- In the learner state the grading test must fail **fast** with a clear message in the course language (for example when
-  a function returns the zero value, fail before any heavy setup). A package-level `ErrNotImplemented` sentinel and a
-  probe call (nil input / cancelled context) is one proven pattern.
+- In the learner state the grading test must fail with a clear message in the course language, preferably before any
+  heavy setup. Do not invent wrapper functions or sentinels just to make that possible: if the learner's code calls the
+  subject directly, a run that fails on the expected assertion is fine.
+- What the placeholder leaves to the learner must be the concept being taught (the API calls, the logic), never a
+  literal value (a name, a count, an image string) that the text already gives away.
 - Package names must be unique per task, and start with a package doc comment.
 - Keep the boilerplate error handling (`t.Fatal`) outside the placeholder so the learner does not touch the signature.
 
@@ -89,12 +91,24 @@ func WordCount(text string) map[string]int {
 ## task.md structure
 
 - One register in the course language, no emoji, a short gloss for foreign terms on first use.
-- **theory**: concept + **Build/Inspect tables** (`function | signature | what it does | caveat`). Every signature and
-  behaviour confirmed by docs, `go doc` or running. 3-7 KB per piece.
-- **edu**: `# Exercise: title` / APIs used (table) / what to do (numbered) / how it is graded / caveats. Show the key calls
-  but not the whole answer.
+- **theory**: explain the concept, then point at what the example shows. API tables (`function | signature | what it
+  does | caveat`) help when there are several calls; skip them otherwise. Every signature and behaviour confirmed by
+  docs, `go doc` or running. Usually no more than 7 KB.
+- **edu**: what to build, which APIs to use, what result is expected, how it is graded. Show the key calls but not the
+  whole answer. The worked solution lives only in the source (Peek Solution), never in the description.
 - **choice**: the question only (options live in lesson.py).
 - Code fences carry a language tag (```go, ```bash).
+
+## Anti-patterns (all seen in real drafts)
+
+- Exercises that fill in a literal (a string, a number) instead of writing logic or API calls.
+- Examples that only print the values of the question; they show no behaviour.
+- The solution or the expected answer written in the description.
+- Author tooling in learner text: `make` targets, `go.mod` / version pinning, the build or verify scripts.
+- The same task skeleton forced on every lesson; generic "evidence / process / validation" checklists.
+- Filler and an over-formal, machine-sounding register; explaining what the audience already knows.
+- Over-translating established terms. Keep the subject's own names (types, commands, components) as they are, or in
+  the transliteration the community uses; list them in `COURSE_BRIEF.md`.
 
 ## Parallel author agents
 

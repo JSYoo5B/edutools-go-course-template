@@ -23,11 +23,12 @@ Requirements: Go 1.26+, Python 3. (`tools/yamlcheck` and `tools/to_study` are bu
 
 ## Turn it into your course
 
-1. Fill `structure.py` (title, summary, **course language**, default UI texts, sections) and `src/_root/README.md`.
-2. Add your subject library to `src/_root/go.mod` (`go get`, `go mod tidy`, keep go.sum).
-3. Write lessons under `src/` using the sample `src/lesson01` as the model; rules in
-   [docs/authoring-guide.md](docs/authoring-guide.md).
-4. Pitfalls: [docs/gotchas.md](docs/gotchas.md). Design: [docs/course-design.md](docs/course-design.md).
+1. Fill [COURSE_BRIEF.md](COURSE_BRIEF.md) (the request verbatim, audience, scope, terms).
+2. Fill `structure.py` (title, summary, **course language**, default UI texts, sections) and `src/_root/README.md`.
+3. Add your subject library to `src/_root/go.mod` (`go get`, `go mod tidy`, keep go.sum).
+4. Write a pilot of 2-3 lessons under `src/` using the sample `src/lesson01` as the model, review it in the IDE, then
+   write the rest. Rules in [docs/authoring-guide.md](docs/authoring-guide.md).
+5. Pitfalls: [docs/gotchas.md](docs/gotchas.md). Design: [docs/course-design.md](docs/course-design.md).
 
 ## Two trees
 
@@ -38,7 +39,7 @@ Requirements: Go 1.26+, Python 3. (`tools/yamlcheck` and `tools/to_study` are bu
 
 ## Layout
 
-`AGENTS.md` (instructions) | `structure.py` (course metadata) | `src/` (sources) | `tools/` (build, verify, validate, convert)
+`AGENTS.md` (instructions) | `COURSE_BRIEF.md` (per-course brief) | `structure.py` (course metadata) | `src/` (sources) | `tools/` (build, verify, validate, convert)
 | `docs/` | `Makefile`
 
 go.mod: the source has one `src/_root/go.mod`; the build generates a `go.mod`/`go.sum` per task.

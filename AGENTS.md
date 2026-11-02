@@ -2,7 +2,9 @@
 
 This repository is a working template for building and maintaining **Go learning courses in the JetBrains Academy
 (EduTools) format**. The course subject is empty. Clone this repo to start a new course and fill `src/`.
-Anything that depends on the subject library lives only in the clone's `src/` and `docs/`.
+Anything that depends on the subject lives only in the clone's `src/`, `structure.py` and `COURSE_BRIEF.md`.
+`AGENTS.md`, `docs/` and `tools/` are generic: do not rewrite them for one course (fix them only when they are wrong for
+every course).
 
 ## Language policy
 
@@ -19,6 +21,7 @@ license in its README, and check the licenses of the subject library and of any 
 
 ## 0. How to read this file
 
+- Read `COURSE_BRIEF.md` first: it holds the requester's words and the course-specific decisions.
 - New here: sections 1-3. While working: section 4 (procedures) and section 6 (definition of done).
 - When something breaks in the IDE: `docs/gotchas.md` (symptom -> cause -> fix). Design: `docs/course-design.md`.
   Rules for writing tasks: `docs/authoring-guide.md`.
@@ -29,6 +32,7 @@ license in its README, and check the licenses of the subject library and of any 
 
 ```
 AGENTS.md               instructions for agents (this file)
+COURSE_BRIEF.md         the course's request, audience, scope, terms and decisions (fill per course)
 README.md               quick start for humans
 Makefile                build / check / verify / run-demo / run-all / study / zip
 structure.py            course metadata (title, summary, language, ui texts) and the section -> lesson map; edit first
@@ -61,11 +65,12 @@ source directories.
    no module and the top directory shows as excluded.
 5. Create placeholders **only with the markers** (`//@@begin` / `//@@ph ` / `//@@end`). Never compute offset/length by
    hand (UTF-16 units, wrong for non-ASCII text).
-6. The **learner state** (placeholders substituted) must also compile, and an unimplemented task must **fail fast with a
-   clear message** in the course language.
+6. The **learner state** (placeholders substituted) must also compile, and an unimplemented task must **fail with a
+   clear message** in the course language (before heavy setup where possible).
 7. Run heavy tests (processes, containers) **only through `tools/verify.py`** (global lock, serial). No parallel
    `go test`. No global delete commands.
-8. **One task description = one topic, 3-7 KB.** Interleave: theory -> related exercise -> theory -> exercise.
+8. **One task description = one topic**, only what the learner needs. Interleave: theory -> related exercise -> theory
+   -> exercise.
 9. Display order is the **order of `tasks` in `lesson.py`**, not the directory numbers. If you rename a directory, change
    the module name, the import in the test and `lesson.py` together.
 10. If the docs and the real behaviour differ, **follow the real run**. State measured claims (timings, error classes,
@@ -103,13 +108,18 @@ taskMM/test/task_test.go edu: hidden grading test (package test)
 ## 4. Procedures
 
 ### Start a new course
-1. Clone this repo. Edit `structure.py` (title, summary, language, ui texts, sections) and `src/_root/README.md`.
+1. Clone this repo. Fill `COURSE_BRIEF.md` (paste the request verbatim). Edit `structure.py` (title, summary, language,
+   ui texts, sections) and `src/_root/README.md`.
 2. Research the subject (official docs, public API via `go doc`, examples, pitfalls). Verify facts by running code.
 3. Add the subject library to `src/_root/go.mod` (`go get <lib>@<ver>`, `go mod tidy`) and keep go.sum in `src/_root/`
-   (copied into every task, then tidied).
-4. Design the lessons (`docs/course-design.md`), write `src/lessonNN/` (copy `lesson01` and edit). Replace or delete the sample.
-5. `make verify L=lessonNN T=taskMM` per task, then `make check`, then `make run-all`.
-6. `make study` (learner tree) -> `make zip` -> verify in the IDE (section 5). Record in the README what was and was
+   (copied into every task, then tidied). The version is pinned here only; it is not course content.
+4. Design the lessons (`docs/course-design.md`).
+5. **Pilot first.** Write only the first 2-3 lessons (copy `lesson01` and edit; replace or delete the sample), build
+   them (`make check && make study`) and **stop for the requester's review in the IDE**. Fix what they find before
+   writing the rest; repeat the review if the feedback was large. Do not spend long test runs on lessons that have not
+   passed this review.
+6. Write the remaining lessons. `make verify L=lessonNN T=taskMM` per task, then `make check`, then `make run-all`.
+7. `make study` (learner tree) -> `make zip` -> verify in the IDE (section 5). Record in the README what was and was
    not verified.
 
 ### Update for a new version of the subject library
@@ -135,12 +145,14 @@ update `structure.py`, the README and the reference card.
 
 - In GoLand with the JetBrains Academy plugin, **close and re-open** `build/course` (author) and `build/course-study`
   (learner), then check: (1) the theory description shows, (2) the exercise Check works, (3) the top directory is not
-  excluded, (4) the learner tree jumps to the first task.
+  excluded, (4) the learner tree jumps to the first task, (5) Peek Solution shows the answer.
 - On failure read `~/Library/Logs/JetBrains/GoLand*/idea.log` (`Local check of task` exceptions; the line before
   `Course opened:` shows which file was opened first). The state of an open project can be queried through the
   goland MCP (`get_project_modules`, with `projectPath`).
-- Reference for comparison: the official JetBrains *Tour of Go* course (its `task-info.yaml` and `.idea`).
-- Building into a directory the IDE has open can delete `.idea/workspace.xml`: close and re-open the project.
+- Reference for comparison: the JetBrains Academy [*Tour of Go* course](https://github.com/jetbrains-academy/tour-of-go)
+  (its `task-info.yaml` files).
+- Building into a directory the IDE has open can delete `.idea/workspace.xml`: close and re-open the project. After
+  restructuring lessons, generate into a fresh directory (`docs/gotchas.md` 13).
 
 ## 6. Definition of done
 
@@ -154,6 +166,7 @@ update `structure.py`, the README and the reference card.
 
 ## 7. Style (for the course content)
 
-Pick one register in the course language and keep it. No emoji. Introduce foreign terms with a short gloss on first use.
-Theory: Build/Inspect tables. Exercise: `# Exercise:` / API table / what to do / how it is graded / caveats.
-Code fences always carry a language tag. Details: `docs/authoring-guide.md`.
+Pick one register in the course language and keep it. No emoji. Introduce foreign terms with a short gloss on first use;
+keep the subject's own terms as listed in `COURSE_BRIEF.md`. Teach concepts in small steps with examples that show the
+behaviour; exercises make the learner use the subject as its users do (`docs/course-design.md`). Avoid the
+anti-patterns in `docs/authoring-guide.md`. Code fences always carry a language tag.
