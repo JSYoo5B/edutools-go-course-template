@@ -61,7 +61,8 @@ source directories.
 2. **Never write `editable: false`** on hidden files (`test/task_test.go`, `go.sum`). The plugin writes the hidden test
    file at Check time. (Violation: "Failed to launch checking".)
 3. **Every task, theory and choice included, needs a visible file**; otherwise the Task Description panel does not show.
-   For theory/choice tasks that is an **example `main.go` showing the concept**. No empty `main()`. No answer hints in
+   For theory/choice tasks use a **runnable example in the subject's normal usage form**: a visible
+   `test/*_test.go` for testing tools, or `main.go` for programs. No empty examples. No answer hints in
    a quiz example.
 4. The course root needs **`.idea/modules.xml` + `.iml`** (copied from `src/_root/idea/`). Without them the project has
    no module and the top directory shows as excluded.
@@ -90,7 +91,7 @@ source directories.
 ```
 lesson.py                LESSON = dict(dir, title, tasks=[dict(dir, type, title, files, ...)])
 taskMM/task.md           description in the course language (all types)
-taskMM/main.go           theory/choice: example that shows the concept (visible file)
+taskMM/main.go or test/example_test.go  theory/choice: runnable example in the subject's usage form
 taskMM/<name>.go         edu: visible source = solution + markers
 taskMM/test/task_test.go edu: hidden grading test (package test)
 ```
@@ -136,7 +137,7 @@ taskMM/test/task_test.go edu: hidden grading test (package test)
    still pass. Regenerate (`make study`) and repackage.
 
 ### Add a new package / topic
-Write an API table (function | signature | what it does | caveat), add a lesson (theory pieces -> 2-4 exercises -> quiz),
+Write an API table (function | signature | what it does | caveat), add a lesson (concept examples and exercises as needed by the topic),
 update `structure.py`, the README and the reference card.
 
 ### Working with parallel author agents
@@ -144,8 +145,10 @@ update `structure.py`, the README and the reference card.
 - Brief them with section 2, `docs/authoring-guide.md`, the sample lesson and the planned tasks. No edits outside their lessons.
 - Treat their reports as hints. After assembling, run `make check` / `make run-all` yourself.
 
-## 5. IDE verification (a human step - it cannot be automated)
+## 5. IDE and plugin verification
 
+- Converter tests and answer reconstruction check the format, not the plugin. Only the IDE checks below prove that
+  the course works; record them with the IDE and plugin versions.
 - In GoLand with the JetBrains Academy plugin, **close and re-open** `build/course` (author) and `build/course-study`
   (learner), then check: (1) the theory description shows, (2) the exercise Check works, (3) the top directory is not
   excluded, (4) the learner tree jumps to the first task, (5) Peek Solution shows the answer.
@@ -161,11 +164,12 @@ update `structure.py`, the README and the reference card.
 
 - [ ] `make check` passes (author tree rules + `go vet` of every module, solution and learner state)
 - [ ] `make study` passes (`yamlcheck -study` + `go vet` of the learner tree)
-- [ ] every edu solution passes `make verify` **at least twice in a row** (no flakiness); the learner state fails fast
+- [ ] every edu solution passes `make verify` **at least twice in a row** (no flakiness); the learner state fails at its declared assertion (`--student-test`), not a build/setup error
 - [ ] theory/choice examples compile; representative ones were executed (`make run-demo`)
 - [ ] facts in the text (signatures, defaults, measured values) were confirmed by docs / `go doc` / running
 - [ ] README version, task counts and verification status match reality; unverified items are stated
-- [ ] `make zip` produced the package
+- [ ] `make zip` packaged the validated Study tree and validated a fresh extraction
+- [ ] content passed the teaching review in `docs/course-design.md`; passing tests alone is not educational approval
 
 ## 7. Style (for the course content)
 

@@ -49,5 +49,7 @@ printed text is the point.
   does not collide with them.
 - The placeholder holds the concept being taught. Setup, cleanup and routine error handling stay outside it.
 - The learner state compiles (`_ = x` for unused names) and fails with a message that says what is missing.
+  Declare that assertion as `student_failure` in lesson.py (not needed for output tasks) and execute it with
+  `--student-test`.
 - A hidden test that runs `go` itself (build, `-overlay`) relies on the Go toolchain the IDE already uses; keep it to a
   few short runs.

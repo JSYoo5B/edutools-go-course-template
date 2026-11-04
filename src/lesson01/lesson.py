@@ -8,8 +8,8 @@ LESSON = dict(
         dict(dir="task01", type="theory", title="Maps and counting",
              files=[("go.mod", False), ("go.sum", False), ("main.go", True)]),
         # edu: visible source (solution + markers) + hidden test (test/task_test.go)
-        dict(dir="task03", type="edu", title="Exercise: implement WordCount",
-             files=[("go.mod", True), ("go.sum", False), ("wordcount.go", True), ("test/task_test.go", False)]),
+        dict(dir="task03", student_failure="WordCount returned nil", type="edu", title="Exercise: implement WordCount",
+             files=[("go.mod", False), ("go.sum", False), ("wordcount.go", True), ("test/task_test.go", False)]),
         # choice: the question is task.md, the options are here. The example main.go holds the code of the
         # question (never put a hint about the answer in it).
         dict(dir="task02", type="choice", title="Quiz: a missing key", multiple=False,

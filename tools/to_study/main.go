@@ -20,7 +20,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func u16(s string) []uint16 { return utf16.Encode([]rune(s)) }
+func u16(s string) []uint16     { return utf16.Encode([]rune(s)) }
 func fromU16(u []uint16) string { return string(utf16.Decode(u)) }
 
 func scalar(v string) *yaml.Node { return &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: v} }
@@ -29,7 +29,9 @@ func scalar(v string) *yaml.Node { return &yaml.Node{Kind: yaml.ScalarNode, Tag:
 func quoted(v string) *yaml.Node {
 	return &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: v, Style: yaml.DoubleQuotedStyle}
 }
-func intNode(n int) *yaml.Node  { return &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!int", Value: fmt.Sprint(n)} }
+func intNode(n int) *yaml.Node {
+	return &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!int", Value: fmt.Sprint(n)}
+}
 func boolNode(b bool) *yaml.Node {
 	v := "false"
 	if b {
@@ -37,8 +39,12 @@ func boolNode(b bool) *yaml.Node {
 	}
 	return &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!bool", Value: v}
 }
-func mapping(kv ...*yaml.Node) *yaml.Node { return &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map", Content: kv} }
-func seq(items ...*yaml.Node) *yaml.Node  { return &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq", Content: items} }
+func mapping(kv ...*yaml.Node) *yaml.Node {
+	return &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map", Content: kv}
+}
+func seq(items ...*yaml.Node) *yaml.Node {
+	return &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq", Content: items}
+}
 
 func get(m *yaml.Node, key string) *yaml.Node {
 	for i := 0; i+1 < len(m.Content); i += 2 {
@@ -48,7 +54,7 @@ func get(m *yaml.Node, key string) *yaml.Node {
 	}
 	return nil
 }
-func has(m *yaml.Node, key string) bool { return get(m, key) != nil }
+func has(m *yaml.Node, key string) bool          { return get(m, key) != nil }
 func add(m *yaml.Node, key string, v *yaml.Node) { m.Content = append(m.Content, scalar(key), v) }
 
 func readYAML(path string) (*yaml.Node, error) {
@@ -170,6 +176,18 @@ func convertTask(srcDir, dstDir string) []string {
 					if fromU16(nu[o:o+l]) != get(p, "placeholder_text").Value {
 						problems = append(problems, fmt.Sprintf("%s/%s: placeholder %d mismatch", srcDir, name, i))
 					}
+				}
+				// Restore all answers in reverse offset order and compare the complete author file.
+				restored := u16(newText)
+				for i := len(newPhs) - 1; i >= 0; i-- {
+					p := newPhs[i]
+					var o, l int
+					fmt.Sscan(get(p, "offset").Value, &o)
+					fmt.Sscan(get(p, "length").Value, &l)
+					restored = append(append(append([]uint16{}, restored[:o]...), u16(get(p, "possible_answer").Value)...), restored[o+l:]...)
+				}
+				if fromU16(restored) != string(b) {
+					problems = append(problems, fmt.Sprintf("%s/%s: restored answer differs from author file", srcDir, name))
 				}
 				if err := os.WriteFile(filepath.Join(dstDir, name), []byte(newText), 0o644); err != nil {
 					problems = append(problems, err.Error())

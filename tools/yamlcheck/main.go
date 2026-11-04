@@ -340,18 +340,25 @@ func checkStudyTree(root string) {
 		for _, fe := range files {
 			fm, _ := fe.(map[string]any)
 			phs, _ := fm["placeholders"].([]any)
-			if len(phs) == 0 {
-				continue
-			}
 			name, _ := fm["name"].(string)
 			text, err := os.ReadFile(filepath.Join(dir, name))
 			if err != nil {
 				fail("%s: %v", p, err)
 				continue
 			}
+			modelText, ok := fm["text"].(string)
+			if !ok || modelText != string(text) {
+				fail("%s/%s: model text is missing or differs from the learner file", dir, name)
+			}
 			u := utf16.Encode([]rune(string(text)))
 			for _, pe := range phs {
 				pm, _ := pe.(map[string]any)
+				if _, ok := pm["possible_answer"].(string); !ok {
+					fail("%s/%s: missing possible_answer", dir, name)
+				}
+				if _, exists := pm["encrypted_possible_answer"]; exists {
+					fail("%s/%s: encrypted answers are not supported for local Study trees", dir, name)
+				}
 				off, _ := pm["offset"].(int)
 				ln, _ := pm["length"].(int)
 				want, _ := pm["placeholder_text"].(string)

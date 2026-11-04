@@ -9,7 +9,7 @@ how to verify the result, and (where it applies) how to handle errors and edge c
 src/_root/go.mod, go.sum, README.md, idea/{course.iml,modules.xml,externalDependencies.xml}
 src/lessonNN/lesson.py                 # LESSON dict
 src/lessonNN/taskMM/task.md            # description in the course language
-src/lessonNN/taskMM/<file>.go          # edu: visible source = solution + markers / theory,choice: example main.go
+src/lessonNN/taskMM/<file>.go          # edu: visible source = solution + markers / theory,choice: runnable main.go or test/example_test.go
 src/lessonNN/taskMM/test/task_test.go  # edu: hidden grading test (package test)
 ```
 The task directory number is **not** the display order (that is the order in `lesson.py`). The module is named
@@ -24,7 +24,7 @@ LESSON = dict(
     dict(dir="task01", type="theory", title="...",
          files=[("go.mod", False), ("go.sum", False), ("main.go", True)]),      # the example code is the visible file
     dict(dir="task02", type="edu", title="Exercise: ...",
-         files=[("go.mod", True), ("go.sum", False), ("exercise.go", True), ("test/task_test.go", False)]),
+         files=[("go.mod", False), ("go.sum", False), ("exercise.go", True), ("test/task_test.go", False)]),
     dict(dir="task06", type="choice", title="Quiz: ...", multiple=False,
          options=[("option", True), ("option", False), ...],                    # about four, plausible wrong ones
          msg_ok="Correct! why", msg_bad="a hint",                               # optional; defaults from structure.COURSE["ui"]
@@ -58,7 +58,11 @@ func WordCount(text string) map[string]int {
 - Lines starting with `//@@ph ` right after `//@@begin` are the placeholder text the learner sees; everything up to
   `//@@end` is the solution. The markers are removed from the output.
 - The learner state must compile -> silence unused imports/variables with `_ = x`. Check with `make verify L=.. T=..`
-  (= `--student` vet + the solution test).
+  (= `--student` vet + `--student-test` expected failure + the solution test).
+- Declare `student_failure` in the task definition: a distinctive substring of the intended assertion message.
+  Output tasks need none: the learner program must exit successfully with different output.
+  A failed build, missing Docker daemon, panic, or unexpected success is not an accepted baseline.
+  Read the recorded failure output as well; a substring check is not a substitute for reviewing its cause.
 - In the learner state the grading test must fail with a clear message in the course language, preferably before any
   heavy setup. Do not invent wrapper functions or sentinels just to make that possible: if the learner's code calls the
   subject directly, a run that fails on the expected assertion is fine.
@@ -81,13 +85,14 @@ func WordCount(text string) map[string]int {
 - Verify "did the learner clean up" by checking that the resource is gone after the subtest ends.
 - If the documentation and the real behaviour differ, follow the real run and reflect it in the text.
 
-## theory / choice tasks: the example `main.go`
+## theory / choice tasks: runnable examples
 
-- `package main`, must compile (`--student` vet). Prefer a demo that **runs with `go run .`**: prepare -> run the concept ->
-  print -> `defer` cleanup.
-- Do not paste the snippets of task.md: weave them into one coherent story of 40-120 lines with comments that explain
-  *why* and point out pitfalls.
-- A risky or slow example may be compile-only with a note at the top. **No empty main.**
+- Match the subject's actual usage in examples as well as exercises. Testing tools use visible native Go tests in
+  `test/`, with setup, cleanup and assertions. Programs use `main.go`, with output and cleanup.
+  `make run-demo` selects `go test ./test/ -count=1 -v` when test files are declared, otherwise `go run .`.
+- Do not paste unrelated snippets of task.md. Supply a complete runnable example of the concept, with comments
+  explaining why where needed. There is no line-count quota.
+- A risky or slow example may be compile-only with a note at the top. **No empty examples.**
 - A quiz example contains the code of the question and **no hint about the answer**.
 - Do not expose the solution of an earlier exercise.
 
@@ -106,7 +111,8 @@ func WordCount(text string) map[string]int {
 
 - Exercises that fill in a literal (a string, a number) instead of writing logic or API calls.
 - Examples that only print the values of the question; they show no behaviour.
-- The solution or the expected answer written in the description.
+- The worked solution written in the description. Expected behaviour and observable results belong in the task;
+  the code that solves it belongs in Peek Solution.
 - Author tooling in learner text: `make` targets, `go.mod` / version pinning, the build or verify scripts.
 - The same task skeleton forced on every lesson; generic "evidence / process / validation" checklists.
 - Filler and an over-formal, machine-sounding register; explaining what the audience already knows.

@@ -44,3 +44,16 @@ theory task has a runnable example. Link to it; do not copy its content.
 - Measured claims: durations, delays, error classes.
 - Supported environments and the required Go version.
 - README (version, task counts).
+
+## Teaching review before expanding the pilot
+
+Review these questions as author criteria, not as mandatory headings or a worksheet for every task:
+
+- Does the explanation establish why the concept is needed and how it relates to concepts already introduced?
+- Can the learner predict the example's result and explain the observed result using the explanation?
+- Does the exercise apply what was taught, instead of requiring an unexplained API search or copying a supplied call?
+- Are setup, cleanup and routine error handling supplied, with the subject's meaningful operation left to the learner?
+- Are expected observations stated without giving away the implementation? Is the full solution available separately?
+
+Record content review separately from compilation, runtime checks, packaging and IDE checks. A green test suite
+establishes functionality; it does not establish that the explanation teaches the concept.

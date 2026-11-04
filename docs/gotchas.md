@@ -82,7 +82,9 @@ Each item: symptom -> cause -> fix / how to check.
   file's model `text` plus each placeholder's `possible_answer`; without `text` it fails with
   `Range [n, 0) out of bounds for length 0`. A local learner tree does not decrypt `encrypted_possible_answer`.
 - Fix: `tools/to_study` writes `possible_answer` and the full learner `text` of every file (hidden ones too, which Check
-  restores from the model). Covered by `tools/to_study/main_test.go`.
+  restores from the model). Covered by `tools/to_study/main_test.go`, run by `make check` and `make study`.
+  Study validation rejects missing/mismatched file text and missing or encrypted answers. The converter reconstructs
+  each complete answer and compares it to the author file. These are format checks, not actual plugin-load or GUI checks.
 
 ## 13. Descriptions vanish after restructuring lessons
 - Cause: a learner tree generated over a directory the IDE had opened before kept old lesson metadata;

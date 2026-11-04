@@ -12,10 +12,10 @@ The repository is written in English; the course you build can be in any languag
 ```bash
 git clone <this repo> my-course && cd my-course
 make check                       # build the sample course + structure check + go vet of every module
-make verify L=lesson01 T=task03  # verify one sample exercise (learner state compiles, solution passes)
+make verify L=lesson01 T=task03  # verify one sample exercise (learner state compiles and fails as intended, solution passes)
 make run-demo L=lesson01 T=task01
 make study                       # learner (Study-mode) tree in build/course-study, validated
-make zip                         # course.zip
+make zip                         # validated Study tree -> course.zip; checks a fresh extraction
 ```
 
 Requirements: Go 1.26+, Python 3. (`tools/yamlcheck` and `tools/to_study` are built with `go build`; they need
@@ -37,6 +37,14 @@ Requirements: Go 1.26+, Python 3. (`tools/yamlcheck` and `tools/to_study` are bu
 | --- | --- | --- |
 | `build/course` (author tree) | Course Creator mode | solutions, placeholders by offset |
 | `build/course-study` (`make study`) | learner mode, jumps to the first task | placeholder text in the files, `status`/`record`, `mode: Study`, no root README |
+
+`make zip` produces the learner archive. `make zip-author` produces `course-author.zip` for Course Creator;
+its files contain solutions. Both commands validate the source tree and a fresh extraction. Override `ZIP` or
+`AUTHOR_ZIP` to choose the archive path.
+
+Verification holds a per-task lock while generating and using that task's files. Actual execution also takes the
+global resource lock. Compile-only `--student` checks for other tasks can proceed while a test runs; checks for the
+same task wait to avoid overwriting files in use.
 
 ## Layout
 
